@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>D365 Case Data Simulator</title>
+
+  </head>
+  <body class="m-3">
+    
+    <h2>D365 Case Data Simulator</h2>
+    <p>D365 Case Data Simulator is a robust data simulator for D365 Customer Service. This collection of Power Platform Assets and documentation that will allow you to automate case data being populated in your D365 Customer Service environment so some of your D365 Customer Service Dashboards and Reports light up with meaningful data. The intended audience for D365 Case Data Simulator are D365 and/or Power Platform Professionals who have experience bulk loading data in Dataverse and editing Cloud Flows and Desktop Automations using Power Automate.</p>
+    <p><a href="https://github.com/chrisscalzo/D365-Case-Data-Simulator">Visit D365 Case Data Simulator on GitHub</a></p>
+
+    <h3 class="mt-2">Important</h3>
+    <p>D365 Case Data Simulator isn't intended to be run within environments that have live D365 Customer Service Data. If you do this you will end up co-mingling demo data with real D365 Customer Service Case Data records. The simulator will flag records that it creates but this means you will need to prune those records. So please, don't run this in an environment where there is live D365 Customer Service data.</p>
+    <p>Best practice is to run D365 Case Data Simulator in an environment that you use as a Sandbox or to experiment with D365 capabilities such as one of your demonstration environments.</p>
+    <p>This simulator won't work until you perform the following configurations steps followed below.</p>    
+
+    <h3 class="mt-2">What's Included</h3>
+    <p>There are two solutions included in the GitHub repository.</p>
+    <ol class="list-group list-group-numbered">
+        <li class="list-group-item"><u>CaseDataSimulatorSolution</u> - Core Cloud Flows and Connection Reference which will bulk load and resolve cases at regularly scheduled intervals. </li>
+        <li class="list-group-item"><u>CaseDataSimulatorSolutionOptional</u> - Optional package. You only need to install this should you want to automate the process of survey's being taken following the resolution of cases. Surveys allow you to capture CSAT and Customer Sentiment so that these values will populate in your D365 Analytics. This solution contains a Cloud Flow, Connection Reference and 3 Desktop Automations.</li>
+    </ol>
+
+    <h3 class="mt-2">Starting Off</h3>
+    <p>If you've made it this far you may want to use D365 Case Data Simulator. Do this next.</p>
+    <ol class="list-group list-group-numbered">
+        <li class="list-group-item">Identify the Dataverse environment you will use. See <b>"Important"</b> above. Ensure your user account has the proper privileges to create, read and update Case records.</li>
+        <li class="list-group-item">Create a custom field (Boolean - Yes/No data type) named <b>"DemoDataSimulator"</b> in the Case Table.
+        <p class="m-3"><img src="img/demo-data-simulator-custom-field.png" class="img-fluid"></p>
+        </li>
+        <li class="list-group-item">Get the repository from GitHub. You can download the zip package using the green button named "Code". You can also clone the repo as you typically would with command line or desktop tools.</li>
+        <li class="list-group-item">To maximize portability the Cloud Flows contain data arrays </li>
+    </ol>
+
+    <h3 class="mt-2">Steps to Configure the Core Package</h3>
+    <ol class="list-group list-group-numbered">
+        <li class="list-group-item">Import the solution in your target environment.</li>
+        <li class="list-group-item">Edit the Cloud Flow named <b>"Case Data Simulator - Create New Cases Each Business Hour"</b>.</li>
+        <li class="list-group-item">Expand the "Do Until" action. Go to the "Add a new row" action. Make sure the DemoDataSimulator is set to "Yes". This way your cases will be flagged that this Flow creates. You might need to change the selection and then change it back to "Yes". You will first need to do this before you can save the Cloud Flow.
+        <p class="m-3"><img src="img/demo-data-simulator-custom-field-add-row.png" class="img-fluid"></p></li>
+        <li class="list-group-item">Modify CaseTitles Array.</li>
+        <li class="list-group-item">Modify CaseType Array. Go to the Case table to view the Case Type values available.</li>
+        <li class="list-group-item">Modify Subjects Array. Go to the Subjects table and extract GUIDs for the Active Subject records you want to use. There is a one to many relationship between Subjects and Cases.</li>
+        <li class="list-group-item">Modify Contacts Array. Go to the Contacts table and extract GUIDs for the Active Contact records you want to use. There is a one to many relationship between Contacts and Cases. Use Contact records that have First and Last names populated as those are used in the Cloud Flow.</li>
+        <li class="list-group-item">Modify Priority Array. Go to the Case table to view the Priority values available.</li>
+        <li class="list-group-item">Modify Products Array. Go to the Products table and extract GUIDs for the Active Product records you want to use. There is a one to many relationship between Products and Cases. Only add products that aren't kits as I've encountered Dataverse issues when adding kitted products.</li>
+        <li class="list-group-item">Modify Origins Array. To get valid values for this you will need to go to Choices->Case Origins. Click on Case Origins and you will see the values available.</li>
+        <li class="list-group-item">Modify Owners Array. Owners of cases are users of D365, so in this case, D365 Users that have Customer Service Representatives/Supervisor roles. <a href=" https://www.crminnovation.com/blog/find-a-users-guid-without-code/">Retrieve D365 User GUIDs.</a></li>        
+        <li class="list-group-item">Modify StatusReason Array. Go to the Case table to view the Status Reason values available that are associated to the Active state.</li>
+        <li class="list-group-item">Modify other aspects of the "Case Data Simulator - Create New Cases Each Business Hour" Cloud Flow to align with your preferences for how you want it to run. You may want to modify the schedule, how many cases it creates per each time it runs (its currently setup as a random number between 15 and 25).</li>
+        <li class="list-group-item">Edit the Cloud Flow named <b>"Case Data Simulator - Resolve Cases"</b>.</li>
+        <li class="list-group-item">Expand the List Rows action, click on Advanced to open up additional options. You will need to change the internal name of the DemoDataSimulator field.
+            <p class="m-3"><img src="img/demo-data-simulator-custom-field-list-rows-resolve.png" class="img-fluid"></p>
+        </li>
+        <li class="list-group-item">Modify Resolutions Array.</li>
+        <li class="list-group-item">Modify StatusValues Array. The current setup is biased towards the value 1, which is a "Resolved" case. Feel free to add more/less 1's. A 2 is a "Cancelled" case.</li>
+        <li class="list-group-item">Modify StatusReasonsResolved Array. Make sure to only have values which map to the "Resolved" Case State.</li>
+        <li class="list-group-item">Modify StatusReasonsCancelled Array. Make sure to only have values which map to the "Cancelled" Case State.</li>
+        <li class="list-group-item">Dataverse has a quirk which restricts the ability to Resolve or Cancel a Case - we can workaround this by authoring to minimal Processes in D365 that Resolve or Cancel the Case for us. Then we tell D365 to run these processes from the Cloud Flow and hand the Case context to the process so it performs the action on the target case. Your processes can be named "new_CaseResolved" and new_CaseCancelled" to align with the action in the Cloud Flow that calls them.
+            <p class="m-3"><img src="img/demo-data-simulator-processes.png" class="img-fluid"></p>
+            <p class="m-3"><img src="img/demo-data-simulator-process-case-resolve.png" class="img-fluid"></p> 
+         
+        </li>
+        <li class="list-group-item">After creating your processes you may need to reselect the name of the Process in the Actions.</li>                                                     
+      </ol>
+
+    <h3 class="mt-2">Steps to Configure the Optional Package</h3>
+    <ol class="list-group list-group-numbered">
+        <li class="list-group-item">The Cloud Flow within this solution kicks off Desktop Automations that take surveys by launching a Chrome browser window, clicking on form fields and populating text in a text area.</li>
+        <li class="list-group-item">You will need to have a D365 Customer Voice survey setup which asks 3 questions in the following order:  NPS, Rating (Use Number), Text</li>
+        <li class="list-group-item">You will need to define 2 Satisfaction Metrics for your survey, Sentiment and CSAT. Bind Sentiment Satisfaction Metric to Question #3 (Text). Bind CSAT Satisfaction Metric to Question #2 (Rating) 
+           <p class="m-3"><img src="img/demo-data-simulator-cusotmer-voice-survey-layout.png" class="img-fluid"></p>
+           <p class="m-3"><img src="img/demo-data-simulator-cusotmer-voice-sat-metrics.png" class="img-fluid"></p>
+        </li>
+        <li class="list-group-item">You will need to have a Cloud Flow which sends out D365 Customer Voice Surveys when cases are resolved. <a href="https://powerautomate.microsoft.com/en-US/templates/details/900eb2958a1648efb8f509da88242a8d/send-a-survey-when-a-case-is-resolved-in-dynamics-365/">A Power Automate template exists to help you set this up.</a></li>
+        <li class="list-group-item">In order to run these desktop automations you will need to have Machine available to run these desktop automations. <a href="https://learn.microsoft.com/en-us/power-automate/desktop-flows/manage-machines#register-a-new-machine">Here are the instructions for registering a Machine with Browser extensions.</a> When installing the Power Automate Desktop runtime select your target environment that you will be importing this solution in to. This machine will need to have Chrome installed.</li>
+        <li class="list-group-item">Import the solution in your target environment.</li>
+        <li class="list-group-item">When importing the solution you will need to select a Machine for the connection to Power Automate Desktop. Select the machine you want to run your Desktop Automations.</li>        
+    </ol>       
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
