@@ -33,9 +33,12 @@
     <p>If you've made it this far you may want to use D365 Case Data Simulator. Do this next.</p>
     <ol class="list-group list-group-numbered">
         <li class="list-group-item">Identify the Dataverse environment you will use. See <b>"Important"</b> above. Ensure your user account has the proper privileges to create, read and update Case records.</li>
-        <li class="list-group-item">Create a custom field (Boolean - Yes/No data type) named <b>"DemoDataSimulator"</b> in the Case Table.
+        <li class="list-group-item">Create a custom field (Boolean - Yes/No data type) named    <b>"DemoDataSimulator"</b> in the Case Table.
         <p class="m-3"><img src="img/demo-data-simulator-custom-field.png" class="img-fluid"></p>
+        Note the "Logical Name" of the field you created as you will need this later when you are configuring your Cloud Flows.
+        <p class="m-3"><img src="img/demo-data-simulator-logical-name.png" class="img-fluid"></p>        
         </li>
+        
         <li class="list-group-item">Get the repository from GitHub. You can download the zip package using the green button named "Code". You can also clone the repo as you typically would with command line or desktop tools.</li>
         <li class="list-group-item">The Cloud Flows contain data arrays that map to fields in the Case table. Random values are taken from the data arrays and are used as the values when a new Case record is created. Some of the data arrays contain String values and some are arrays of GUIDs. You will replace the values in the arrays with valid GUIDs from your Dataverse environment.</li>
     </ol>
@@ -57,16 +60,19 @@
         <li class="list-group-item">Modify StatusReason Array. Go to the Case table to view the Status Reason values available that are associated to the Active state.</li>
         <li class="list-group-item">Modify other aspects of the "Case Data Simulator - Create New Cases Each Business Hour" Cloud Flow to align with your preferences for how you want it to run. You may want to modify the schedule, how many cases it creates per each time it runs (its currently setup as a random number between 15 and 25).</li>
         <li class="list-group-item">Edit the Cloud Flow named <b>"Case Data Simulator - Resolve Cases"</b>.</li>
-        <li class="list-group-item">Expand the List Rows action, click on Advanced to open up additional options. You will need to change the internal name of the DemoDataSimulator field.
+        <li class="list-group-item">Expand the List Rows action, click on Advanced to open up additional options. You will need to change the internal name of the DemoDataSimulator field (Change to your unique “Logical Name” of custom field created earlier).
             <p class="m-3"><img src="img/demo-data-simulator-custom-field-list-rows-resolve.png" class="img-fluid"></p>
         </li>
         <li class="list-group-item">Modify Resolutions Array.</li>
         <li class="list-group-item">Modify StatusValues Array. The current setup is biased towards the value 1, which is a "Resolved" case. Feel free to add more/less 1's. A 2 is a "Cancelled" case.</li>
         <li class="list-group-item">Modify StatusReasonsResolved Array. Make sure to only have values which map to the "Resolved" Case State.</li>
         <li class="list-group-item">Modify StatusReasonsCancelled Array. Make sure to only have values which map to the "Cancelled" Case State.</li>
-        <li class="list-group-item">Dataverse has a quirk which restricts the ability to Resolve or Cancel a Case - we can workaround this by authoring to minimal Processes in D365 that Resolve or Cancel the Case for us. Then we tell D365 to run these processes from the Cloud Flow and hand the Case context to the process so it performs the action on the target case. Your processes can be named "new_CaseResolved" and new_CaseCancelled" to align with the action in the Cloud Flow that calls them.
+        <li class="list-group-item">Dataverse has a quirk which restricts the ability to Resolve or Cancel a Case - we can workaround this by authoring two minimal Processes in D365 that Resolve or Cancel the Case for us. Then we tell D365 to run these processes from the Cloud Flow and hand the Case context to the process so it performs the action on the target case. Your processes can be named "new_CaseResolve" and new_CaseCancelled" to align with the actions in the Cloud Flow that calls them, ie - “Change record status to Case Problem Solved” and “Change record status to Case Cancelled” on each respective Process.
             <p class="m-3"><img src="img/demo-data-simulator-processes.png" class="img-fluid"></p>
-            <p class="m-3"><img src="img/demo-data-simulator-process-case-resolve.png" class="img-fluid"></p> 
+            <p class="m-3"><img src="img/demo-data-simulator-process-case-resolve-2.png" class="img-fluid"></p> 
+            <p>The screen shots above highlight how you created the process to support the Resovled state by changing the status to "Problem Solved". You can pick a status description that you have available to you for the Resolved state.</p>
+            <p>You will also need to create a 2nd process to support the Cancelling of the case. Follow the same steps that you did for the Resolved state, creating the process with the name "new_CaseCancelled" or similar, then make sure you "Change the record status" of the Case to a status description that maps to Cancelled.</p>
+            <p>Check out this web page (<a href="https://www.aegissofttech.com/articles/workaround-to-resolve-case-using-microsoft-flow.html">https://www.aegissofttech.com/articles/workaround-to-resolve-case-using-microsoft-flow.html</a>) for a detailed example of using processes and unbound actions to resolve a Case.</p>            
          
         </li>
         <li class="list-group-item">After creating your processes you may need to reselect the name of the Process in the Actions.</li>                                                     
